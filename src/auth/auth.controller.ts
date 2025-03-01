@@ -2,15 +2,11 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+  Body
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto';
-import { ok } from 'assert';
 import { Auth } from './decorators';
 import { ValidRoles } from './enum/valid-roles';
 
@@ -28,12 +24,12 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Get('private')
-  @Auth(ValidRoles.SUPERUSER)
-  testingPrivateRoute() {
-    return {
-      ok: true,
-      message: 'This is a private route',
-    };
-  }
+  // @Get('private')
+  // @Auth(ValidRoles.SUPERUSER)
+  // testingPrivateRoute() {
+  //   return {
+  //     ok: true,
+  //     message: 'This is a private route',
+  //   };
+  // }
 }

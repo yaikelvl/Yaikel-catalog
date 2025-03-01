@@ -13,8 +13,8 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('text', { unique: true, nullable: false })
-  email: string;
+  @Column('int', { unique: true, nullable: false })
+  phone: number;
 
   @Column('text', { nullable: false , select: false})
   password: string;
@@ -36,14 +36,14 @@ export class User {
   @Column('boolean', { default: true })
   isActive: boolean;
 
-  @BeforeInsert()
-  checkEmailBeforeInsert(){
-    this.email = this.email.toLowerCase().trim();
-    this.role = this.role.map(role => role.toUpperCase().trim());
-  }
+  // @BeforeInsert()
+  // checkEmailBeforeInsert(){
+  //   this.email = this.email.toLowerCase().trim();
+  //   this.role = this.role.map(role => role.toUpperCase().trim());
+  // }
 
-  @BeforeUpdate()
-  checkEmailBeforeUpdate(){
-    this.checkEmailBeforeInsert();
-  }
+  // @BeforeUpdate()
+  // checkEmailBeforeUpdate(){
+  //   this.checkEmailBeforeInsert();
+  // }
 }

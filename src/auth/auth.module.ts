@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
-import { envs } from 'src/config';
 import { JwtStrategy } from './strategies/jwt.startegy';
 import { User } from './entities/auth.entity';
+import { envs } from '../config/envs';
+
 
 @Module({
   controllers: [AuthController],

@@ -1,1 +1,1 @@
-export * from './envs template';
+export { envs } from './envs';

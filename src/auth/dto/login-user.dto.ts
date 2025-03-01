@@ -1,11 +1,10 @@
 import { Transform } from "class-transformer";
-import { IsEmail, IsLowercase, IsString, IsStrongPassword, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsLowercase, IsNumber, IsPhoneNumber, IsString, IsStrongPassword, MaxLength, MinLength } from "class-validator";
 
 export class LoginUserDto {
-  @IsString()
-  @IsEmail()
-  @Transform(({ value }) => value.toLowerCase())
-  email: string;
+  @IsNumber()
+  @IsPhoneNumber()
+  phone: number;
 
   @IsString()
   @IsStrongPassword()

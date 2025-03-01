@@ -1,19 +1,19 @@
 import {
-    IsArray,
-  IsEmail,
-  IsEnum,
+  IsArray,
+  IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsString,
   IsStrongPassword,
-  isStrongPassword,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsString()
-  @IsEmail()
-  email: string;
+  @IsNumber()
+  @IsPhoneNumber()
+  @MinLength(8)
+  phone: number;
 
   @IsString()
   @IsStrongPassword()

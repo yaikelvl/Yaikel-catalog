@@ -8,6 +8,7 @@ import { join } from 'path';
 import { envs } from './config/envs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { BusinessModule } from './business/business.module';
 
 @Module({
   imports: [
@@ -36,6 +37,8 @@ import { AuthModule } from './auth/auth.module';
     }),
 
     AuthModule,
+
+    BusinessModule,
     
   ],
   controllers: [AppController],

@@ -3,33 +3,34 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { businessModelEnum } from '../enum/businessModelEnum';
+import { User } from 'src/auth/entities/auth.entity';
 
 @Entity('business')
 export class Business {
   @PrimaryGeneratedColumn('uuid')
   business_id: string;
 
-  @Column('text', {
-    unique: true,
+  @Column('varchar', {
     nullable: false,
     default: businessModelEnum.business,
   })
   businessModel: businessModelEnum;
 
-  @Column('varchar', { nullable: false, default: '' })
+  @Column('varchar', { nullable: false })
   businessType: string;
 
-  @Column('text', { default: '' })
+  @Column('text', { nullable: false })
   coverImage: string[];
 
-  @Column('varchar', { default: '' })
+  @Column('varchar', { nullable: false })
   profileImage: string;
 
-  @Column('varchar', { unique: true, default: '' })
+  @Column('varchar', { unique: true })
   name: string;
 
   @Column('varchar', { nullable: true, default: 'Empty Slogan' })
@@ -41,14 +42,20 @@ export class Business {
   @Column('varchar', { nullable: false, unique: true })
   address: string;
 
-  @CreateDateColumn({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   dateEvent?: Date;
 
-  @CreateDateColumn({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   dateStartEvent?: Date;
 
-  @CreateDateColumn({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   dateEndEvent?: Date;
+
+  @ManyToOne(
+    () => User,
+    (userId)=> userId.business
+  )
+  user: User;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
@@ -56,7 +63,7 @@ export class Business {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @Column('boolean', { nullable: true, default: false })
+  @Column('boolean', { nullable: true, default: true })
   isActive?: boolean;
 
   @DeleteDateColumn() // Agrega esta línea para soportar soft delete

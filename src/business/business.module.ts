@@ -3,6 +3,7 @@ import { BusinessService } from './business.service';
 import { BusinessController } from './business.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Business } from './entities/business.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Module({
   controllers: [BusinessController],

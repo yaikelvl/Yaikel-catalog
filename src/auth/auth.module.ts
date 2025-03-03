@@ -32,7 +32,7 @@ import { envs } from '../config/envs';
     //   })
   ],
 
-  exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule],
+  exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule, AuthModule],
   providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

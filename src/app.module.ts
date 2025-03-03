@@ -3,12 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { envs } from './config/envs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
+import { config } from 'process';
 
 @Module({
   imports: [
@@ -23,6 +24,12 @@ import { BusinessModule } from './business/business.module';
     //   load: [envs],
     //   isGlobal: true,
     // }),
+
+    // ConfigModule.forRoot({  //TODO: ZOD
+    //   validate: (config) => envSchema.parse(config),
+    //   isGlobal: true,
+    // }),
+
     ConfigModule.forRoot(),
 
     TypeOrmModule.forRoot({
@@ -39,7 +46,6 @@ import { BusinessModule } from './business/business.module';
     AuthModule,
 
     BusinessModule,
-    
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,9 +1,9 @@
+import { Business } from 'src/business/entities/business.entity';
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -26,6 +26,13 @@ export class User {
     default: ['USER'],
   })
   role: string[];
+
+  @OneToMany(
+    ()=> Business,
+    (business) => business.user,
+    {cascade: true}
+  )
+  business: Business;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

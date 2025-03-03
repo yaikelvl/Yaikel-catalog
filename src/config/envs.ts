@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import * as yup from "yup";
+import * as yup from 'yup';
 
 interface EnvVars {
   PORT: number;

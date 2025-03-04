@@ -25,11 +25,6 @@ import { envs } from '../config/envs';
         return { secret: envs.jwtSecret, signOptions: { expiresIn: '2h' } };
       },
     }),
-
-    // JwtModule.register({
-    //     secret: envs.jwtSecret,
-    //     signOptions: { expiresIn: '1d' },
-    //   })
   ],
 
   exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule, AuthModule],

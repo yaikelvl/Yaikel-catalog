@@ -26,15 +26,15 @@ export class BusinessService {
   ) {}
 
   async create(createBusinessDto: CreateBusinessDto) {
-    try {   
-      // const user = await this.preloadUserById(createBusinessDto.user_id);
-      // if (!user) {
-      //   throw new BadRequestException('User not found');
-      // }
-      
+    try {
+        const user = await this.userRepository.findOneBy(
+          {id: createBusinessDto.user_id})
+
+          if(!user)
+            throw new BadRequestException(`User whith id ${createBusinessDto.user_id} not found`)
+
       const business = this.businessRepository.create(createBusinessDto);
       return this.businessRepository.save(business);
-      
     } catch (error) {
       this.handelExeption(error);
     }
@@ -132,13 +132,5 @@ export class BusinessService {
     throw new InternalServerErrorException(
       'Unexpecte error, check server logs',
     );
-  }
-
-  private async preloadUserById(id: string): Promise<User> {
-    const userExistente = await this.userRepository.findOneBy({ id });
-    if (userExistente) {
-      return userExistente;
-    }
-    return this.userRepository.create({ id });
   }
 }

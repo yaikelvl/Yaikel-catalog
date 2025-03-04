@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { businessModelEnum } from '../enum/businessModelEnum';
-import { User } from 'src/auth/entities/auth.entity';
+import { businessModelEnum } from '../../common/enum';
+import { User } from '../../auth/entities/auth.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity('business')
 export class Business {
@@ -52,8 +54,11 @@ export class Business {
   @Column({ type: 'timestamp', nullable: true })
   dateEndEvent?: Date;
 
+  @OneToMany(() => Product, (product) => product.business, { cascade: true })
+  product: Product[];
+
   @ManyToOne(() => User, (user) => user.business)
-  @JoinColumn({name: 'user_id'})
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column('uuid')

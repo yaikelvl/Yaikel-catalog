@@ -11,7 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { businessModelEnum } from '../enum/businessModelEnum';
+import { businessModelEnum } from '../../common/enum/businessModelEnum';
 import { User } from 'src/auth/entities/auth.entity';
 
 export class CreateBusinessDto {

@@ -69,5 +69,5 @@ export class CreateBusinessDto {
 
   @IsString()
   @IsUUID()
-  userId: string;
+  user_id: string;
 }

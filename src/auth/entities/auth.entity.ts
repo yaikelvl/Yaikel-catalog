@@ -1,5 +1,6 @@
 import { Business } from 'src/business/entities/business.entity';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,32 +8,29 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ValidRoles } from '../enum/valid-roles';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('int', { unique: true, nullable: false })
-  phone: number;
+  @Column('varchar', { unique: true, nullable: false })
+  phone: string;
 
-  @Column('text', { nullable: false , select: false})
+  @Column('text', { nullable: false, select: false })
   password: string;
 
   @Column({
     type: 'text',
     array: true,
     nullable: false,
-    default: ['USER'],
+    default: [ValidRoles.USER],
   })
-  role: string[];
+  role: ValidRoles[];
 
-  @OneToMany(
-    ()=> Business,
-    (business) => business.user,
-    {cascade: true}
-  )
-  business: Business;
+  @OneToMany(() => Business, (business) => business.user, { cascade: true })
+  business: Business[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
@@ -44,8 +42,7 @@ export class User {
   isActive: boolean;
 
   // @BeforeInsert()
-  // checkEmailBeforeInsert(){
-  //   this.email = this.email.toLowerCase().trim();
+  // checkRoleBeforeInsert(){
   //   this.role = this.role.map(role => role.toUpperCase().trim());
   // }
 

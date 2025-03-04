@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -51,11 +52,12 @@ export class Business {
   @Column({ type: 'timestamp', nullable: true })
   dateEndEvent?: Date;
 
-  @ManyToOne(
-    () => User,
-    (userId)=> userId.business
-  )
+  @ManyToOne(() => User, (user) => user.business)
+  @JoinColumn({name: 'user_id'})
   user: User;
+
+  @Column('uuid')
+  user_id: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

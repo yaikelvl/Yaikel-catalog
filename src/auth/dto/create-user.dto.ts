@@ -1,19 +1,22 @@
 import {
   IsArray,
-  IsNumber,
+  IsEnum,
   IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
+  Length,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ValidRoles } from '../enum/valid-roles';
 
 export class CreateUserDto {
-  @IsNumber()
-  @IsPhoneNumber()
-  @MinLength(8)
-  phone: number;
+  @IsString()
+  @Length(11)
+  @Matches(/^\+53\d{8}$/, { message: 'The phone number is not valid for Cuba example (+5351525354)' })
+  phone: string;
 
   @IsString()
   @IsStrongPassword()
@@ -23,6 +26,9 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  role?: string[];
+  @IsEnum(ValidRoles, {
+      each: true,
+      message: `Possible roles for users are ${Object.values(ValidRoles)}`,
+    })
+  role?: ValidRoles[];
 }

@@ -29,6 +29,7 @@ export class AuthService {
         ...userData,
         password: bcrypt.hashSync(password, 10),
       });
+      console.log(user);
       await this.userRepository.save(user);
       delete user.password;
       return {

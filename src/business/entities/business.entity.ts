@@ -12,6 +12,7 @@ import {
 import { businessModelEnum } from '../../common/enum';
 import { User } from '../../auth/entities/auth.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { Service } from 'src/service/entities/service.entity';
 
 @Entity('business')
 export class Business {
@@ -56,6 +57,9 @@ export class Business {
 
   @OneToMany(() => Product, (product) => product.business, { cascade: true })
   product: Product[];
+
+  @OneToMany(() => Service, (service) => service.business, { cascade: true })
+  service: Service[];
 
   @ManyToOne(() => User, (user) => user.business)
   @JoinColumn({ name: 'user_id' })

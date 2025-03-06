@@ -27,7 +27,7 @@ import { envs } from '../config/envs';
     }),
   ],
 
-  exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule, AuthModule],
+  exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule],
   providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

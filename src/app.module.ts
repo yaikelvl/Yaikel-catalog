@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
 import { config } from 'process';
 import { ProductModule } from './product/product.module';
+import { ServiceModule } from './service/service.module';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { ProductModule } from './product/product.module';
     BusinessModule,
 
     ProductModule,
+
+    ServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -12,7 +12,6 @@ import {
   MinLength,
 } from 'class-validator';
 import { businessModelEnum } from '../../common/enum/businessModelEnum';
-import { User } from 'src/auth/entities/auth.entity';
 
 export class CreateBusinessDto {
   @IsEnum(businessModelEnum, {

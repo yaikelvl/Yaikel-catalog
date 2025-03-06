@@ -21,18 +21,19 @@ export class BusinessService {
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
 
-    @InjectRepository(Business)
+    @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
+
   async create(createBusinessDto: CreateBusinessDto) {
     try {
-        const user = await this.userRepository.findOneBy(
-          {id: createBusinessDto.user_id})
-
-          if(!user)
-            throw new BadRequestException(`User whith id ${createBusinessDto.user_id} not found`)
-
+      const user = await this.userRepository.findOneBy({ id: createBusinessDto.user_id });
+  
+      if (!user) {
+        throw new BadRequestException(`User with id ${createBusinessDto.user_id} not found`);
+      }
+  
       const business = this.businessRepository.create(createBusinessDto);
       return this.businessRepository.save(business);
     } catch (error) {

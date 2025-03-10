@@ -24,6 +24,9 @@ export class Product {
   })
   productModel: productsModelEnum;
 
+  @Column('bool', { nullable: false , default: false})
+  isServices: boolean;
+
   @Column('varchar', { nullable: false })
   productType: string;
 

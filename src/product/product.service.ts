@@ -62,6 +62,7 @@ async findAll(paginationDto: PaginationDto) {
     const { data, meta } = product;
     const productsDetails = data.map(
       ({
+        product_id,
         business_id,
         productModel,
         productType,
@@ -69,6 +70,7 @@ async findAll(paginationDto: PaginationDto) {
         description,
         price
       }) => ({
+        product_id,
         business_id,
         productModel,
         productType,

@@ -9,9 +9,10 @@ import { envs } from './config/envs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
-import { config } from 'process';
 import { ProductModule } from './product/product.module';
-import { ServiceModule } from './service/service.module';
+import { ContactModule } from './contact/contact.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -44,6 +45,18 @@ import { ServiceModule } from './service/service.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {
+            host: 'localhost',
+            port: 6379,
+          },
+        }),
+      }),
+    }),
+    // CacheModule.register({isGlobal: true}),
 
     AuthModule,
 
@@ -51,7 +64,7 @@ import { ServiceModule } from './service/service.module';
 
     ProductModule,
 
-    ServiceModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],

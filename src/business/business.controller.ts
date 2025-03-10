@@ -20,11 +20,11 @@ export class BusinessController {
 
   @Get(':term')
   findOne(@Param('term') term: string) {
-    return this.businessService.findOne(term);
+    return this.businessService.findOnePlane(term);
   }
   @Patch(':id')
   update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateBusinessDto: UpdateBusinessDto) {
-    return this.businessService.update(id, updateBusinessDto);
+    return this.businessService.updateNew(id, updateBusinessDto);
   }
 
   @Delete(':id')

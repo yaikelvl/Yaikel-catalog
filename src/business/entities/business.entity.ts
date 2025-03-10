@@ -6,13 +6,15 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { businessModelEnum } from '../../common/enum';
 import { User } from '../../auth/entities/auth.entity';
 import { Product } from 'src/product/entities/product.entity';
-import { Service } from 'src/service/entities/service.entity';
+import { Contact } from 'src/contact/entities/contact.entity';
+import { BusinessImages } from './';
 
 @Entity('business')
 export class Business {
@@ -28,8 +30,8 @@ export class Business {
   @Column('varchar', { nullable: false })
   businessType: string;
 
-  @Column('text', { nullable: false })
-  coverImage: string[];
+  @OneToMany(() => BusinessImages, (image) => image.business, { cascade: true, eager: true })
+  coverImage: BusinessImages[];
 
   @Column('varchar', { nullable: false })
   profileImage: string;
@@ -55,11 +57,14 @@ export class Business {
   @Column({ type: 'timestamp', nullable: true })
   dateEndEvent?: Date;
 
+  @OneToOne(() => Contact, (contact) => contact.business, {
+    cascade: ['insert', 'update'],
+  })
+  contact: Contact;
+
   @OneToMany(() => Product, (product) => product.business, { cascade: true })
   product: Product[];
 
-  @OneToMany(() => Service, (service) => service.business, { cascade: true })
-  service: Service[];
 
   @ManyToOne(() => User, (user) => user.business)
   @JoinColumn({ name: 'user_id' })
@@ -77,6 +82,6 @@ export class Business {
   @Column('boolean', { nullable: true, default: true })
   isActive?: boolean;
 
-  @DeleteDateColumn() // Agrega esta línea para soportar soft delete
+  @DeleteDateColumn() 
   deletedAt?: Date;
 }

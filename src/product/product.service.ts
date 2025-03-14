@@ -115,7 +115,7 @@ async findAll(paginationDto: PaginationDto) {
   
     async remove(id: string) {
       const product = await this.findOne(id);
-      return await this.businessRepository.softRemove(product);
+      return await this.productRepository.softRemove(product);
     }
 
   private handelExeption(error: any) {

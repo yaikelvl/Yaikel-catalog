@@ -5,10 +5,12 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UrlContact } from './urls.entity';
 
 @Entity('contact')
 export class Contact {
@@ -18,11 +20,14 @@ export class Contact {
   @Column('text', { nullable: false })
   phone: string[];
 
-  @Column('text', { nullable: true })
-  urls?: string[];
-
   @Column('uuid')
   business_id: string;
+
+  @OneToMany(() => UrlContact, (url) => url.contact, {
+    cascade: true,
+    eager: true,
+  })
+  url?: UrlContact[];
 
   @OneToOne(() => Business, { cascade: true })
   @JoinColumn({ name: 'business_id' })

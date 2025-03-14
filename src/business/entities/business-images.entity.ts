@@ -23,6 +23,6 @@ export class BusinessImages {
   @Column('uuid')
   business_id: string;
 
-    @DeleteDateColumn() 
-    deletedAt?: Date;
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

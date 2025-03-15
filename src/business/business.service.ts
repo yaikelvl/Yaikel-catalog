@@ -31,11 +31,18 @@ export class BusinessService {
 
     private readonly dataSource: DataSource,
 
-    @Inject(CACHE_MANAGER) private cacheManager: Cache) 
-    {}
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   async create(createBusinessDto: CreateBusinessDto) {
     try {
+      // const businessCacheKey = 'business-create';
+      // const cachedBusiness = await this.cacheManager.get(businessCacheKey);
+      
+      const businessCacheKey = 'business-fin-all';
+      await this.cacheManager.del(businessCacheKey);
+
+
       const user = await this.userRepository.findOneBy({
         id: createBusinessDto.user_id,
       });
@@ -63,7 +70,7 @@ export class BusinessService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-
+    //Manejar Cache de forma manual.
     const businessCacheKey = 'business-fin-all';
     const cachedBusiness = await this.cacheManager.get(businessCacheKey);
 
@@ -119,7 +126,11 @@ export class BusinessService {
         dateEndEvent,
       }),
     );
-    await this.cacheManager.set(businessCacheKey, {businessDetails, meta}, 10000 * 10);
+    await this.cacheManager.set(
+      businessCacheKey,
+      { businessDetails, meta },
+      10000 * 10,
+    );
     return { businessDetails, meta };
   }
 
@@ -164,7 +175,9 @@ export class BusinessService {
 
     try {
       if (coverImage) {
-        await queryRunner.manager.delete(BusinessImages, { business: { business_id: id } });
+        await queryRunner.manager.delete(BusinessImages, {
+          business: { business_id: id },
+        });
         business.coverImage = coverImage.map((image) =>
           this.businessImageRepository.create({ url: image }),
         );

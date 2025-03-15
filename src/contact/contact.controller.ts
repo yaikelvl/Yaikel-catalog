@@ -1,9 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { PaginationDto } from 'src/common';
+import { CreateUrlDto } from './dto';
 
 @Controller('contact')
+@UseInterceptors(CacheInterceptor)
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
@@ -12,23 +27,29 @@ export class ContactController {
     return this.contactService.create(createContactDto);
   }
 
+  
   @Get()
-  findAll() {
-    return this.contactService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.contactService.findAll(paginationDto);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contactService.findOne(+id);
+  
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.contactService.findOne(term);
   }
-
+  
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactService.update(+id, updateContactDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateContactDto: UpdateContactDto) {
+    return this.contactService.update(id, updateContactDto);
+  }
+  
+  @Post('/url/:id')
+  addUrlContact(@Param('id', ParseUUIDPipe) id: string, @Body() createUrlDto: CreateUrlDto) {
+    return this.contactService.addUrl(id, createUrlDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contactService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.contactService.remove(id);
   }
 }

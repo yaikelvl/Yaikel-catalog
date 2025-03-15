@@ -17,7 +17,7 @@ export class Contact {
   @PrimaryGeneratedColumn('uuid')
   contact_id: string;
 
-  @Column('text', { nullable: false })
+  @Column('text', { nullable: false, array: true })
   phone: string[];
 
   @Column('uuid')

@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, Inject } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { PaginationDto } from 'src/common';
+import { CACHE_MANAGER, CacheInterceptor, CacheKey, CacheTTL, Cache } from '@nestjs/cache-manager';
 
 @Controller('business')
+// @UseInterceptors(CacheInterceptor)
 export class BusinessController {
-  constructor(private readonly businessService: BusinessService) {}
+  constructor(private readonly businessService: BusinessService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   @Post()
   create(@Body() createBusinessDto: CreateBusinessDto) {

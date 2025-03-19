@@ -8,14 +8,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { CreateContactDto } from './dto/create-contact.dto';
-import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
 import { UrlContact } from './entities';
 import { PaginationDto } from '../common';
 import { isUUID } from 'class-validator';
 import { Business } from '../business/entities';
-import { CreateUrlDto } from './dto';
+import { CreateUrlDto, CreateContactDto, UpdateContactDto } from './dto';
 
 @Injectable()
 export class ContactService {

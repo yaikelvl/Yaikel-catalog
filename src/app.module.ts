@@ -13,6 +13,7 @@ import { ProductModule } from './product/product.module';
 import { ContactModule } from './contact/contact.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -65,6 +66,8 @@ import { redisStore } from 'cache-manager-redis-yet';
     ProductModule,
 
     ContactModule,
+
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

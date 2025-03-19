@@ -11,11 +11,9 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
-import { CreateContactDto } from './dto/create-contact.dto';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { CreateContactDto, UpdateContactDto, CreateUrlDto } from './dto/';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { PaginationDto } from 'src/common';
-import { CreateUrlDto } from './dto';
 
 @Controller('contact')
 @UseInterceptors(CacheInterceptor)

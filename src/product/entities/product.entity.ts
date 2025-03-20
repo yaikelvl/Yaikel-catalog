@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 
-import { productsModelEnum } from 'src/common/enum';
+import { currencyEnum, productsModelEnum } from 'src/common/enum';
 import { Business } from 'src/business/entities/business.entity';
 
 @Entity('product')
@@ -40,6 +40,12 @@ export class Product {
 
   @Column('float', { nullable: false, default: 0 })
   price: number;
+
+  @Column('varchar', {
+    nullable: false,
+    default: currencyEnum.cup,
+  })
+  currency: currencyEnum;
 
   @Column('text', { nullable: true })
   description?: string;

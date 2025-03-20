@@ -11,7 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { businessModelEnum } from '../../common/enum/businessModelEnum';
+import { businessModelEnum } from '../../common/enum/business-model.enum';
 import { BusinessImages } from '../entities';
 
 export class CreateBusinessDto {
@@ -63,9 +63,9 @@ export class CreateBusinessDto {
   @IsOptional()
   dateEndEvent?: Date;
 
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  // @IsOptional()
+  // @IsBoolean()
+  // isActive?: boolean;
 
   @IsString()
   @IsUUID()

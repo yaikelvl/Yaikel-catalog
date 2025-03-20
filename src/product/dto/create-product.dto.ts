@@ -11,7 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { productsModelEnum } from 'src/common/enum';
+import { currencyEnum, productsModelEnum } from 'src/common/enum';
 
 export class CreateProductDto {
   @IsEnum(productsModelEnum, {
@@ -41,6 +41,11 @@ export class CreateProductDto {
   @IsNumber()
   @IsPositive()
   price: number;
+
+  @IsEnum(currencyEnum, {
+    message: `Possible currency type are ${Object.values(currencyEnum)}`,
+  })
+  currency: currencyEnum;
 
   @IsString()
   @IsUUID()

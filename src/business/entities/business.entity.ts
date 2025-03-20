@@ -15,6 +15,7 @@ import { User } from '../../auth/entities/auth.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { Contact } from 'src/contact/entities/contact.entity';
 import { BusinessImages } from './';
+import { Category } from 'src/category/entities';
 
 @Entity('business')
 export class Business {
@@ -39,7 +40,7 @@ export class Business {
   @Column('varchar', { unique: true })
   name: string;
 
-  @Column('varchar', { nullable: true, default: 'Empty Slogan' })
+  @Column('varchar', { nullable: true, default: '' })
   slogan?: string;
 
   @Column('text', { nullable: true })
@@ -70,6 +71,10 @@ export class Business {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @ManyToOne(() => Category, (category) => category.business)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
+
   @Column('uuid')
   user_id: string;
 
@@ -79,8 +84,8 @@ export class Business {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @Column('boolean', { nullable: true, default: true })
-  isActive?: boolean;
+  // @Column('boolean', { nullable: true, default: true })
+  // isActive?: boolean;
 
   @DeleteDateColumn() 
   deletedAt?: Date;

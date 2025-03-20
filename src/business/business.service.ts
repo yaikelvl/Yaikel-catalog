@@ -245,8 +245,8 @@ export class BusinessService {
 
   async remove(id: string) {
     const business = await this.findOne(id);
-    business.isActive = false;
-    await this.businessRepository.save(business);
+    // business.isActive = false;
+    // await this.businessRepository.save(business);
     return await this.businessRepository.softRemove(business);
   }
 

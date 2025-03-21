@@ -8,12 +8,13 @@ import {
 } from 'typeorm';
 import { Category } from '.';
 
-@Entity('subcategory')
+@Entity()
 export class Subcategory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  subcategory?: string;
+  @Column('text',{nullable: true, unique: true})
+  sub?: string;
 
   @ManyToOne(() => Category, (category) => category.subcategory)
   @JoinColumn({ name: 'category_id' })

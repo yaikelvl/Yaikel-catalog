@@ -12,6 +12,7 @@ import {
 
 import { currencyEnum, productsModelEnum } from 'src/common/enum';
 import { Business } from 'src/business/entities/business.entity';
+import { Category } from 'src/category/entities';
 
 @Entity('product')
 export class Product {
@@ -38,12 +39,16 @@ export class Product {
 
   //TODO: falta categoria
 
+  @ManyToOne(() => Category, (category) => category.product)
+    @JoinColumn({ name: 'category_id' })
+    category: Category;
+
   @Column('float', { nullable: false, default: 0 })
   price: number;
 
   @Column('varchar', {
     nullable: false,
-    default: currencyEnum.cup,
+    default: currencyEnum.CUP,
   })
   currency: currencyEnum;
 
@@ -52,6 +57,9 @@ export class Product {
 
   @Column('uuid')
   business_id: string;
+
+  @Column('uuid')
+  category_id: string;
 
   @ManyToOne(() => Business, (business) => business.product)
   @JoinColumn({ name: 'business_id' })

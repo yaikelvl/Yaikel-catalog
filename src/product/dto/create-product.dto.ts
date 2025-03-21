@@ -50,4 +50,8 @@ export class CreateProductDto {
   @IsString()
   @IsUUID()
   business_id: string;
+
+  @IsString()
+  @IsUUID()
+  category_id: string;
 }

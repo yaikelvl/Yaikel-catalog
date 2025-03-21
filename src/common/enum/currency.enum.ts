@@ -1,5 +1,5 @@
 export enum currencyEnum {
-    usd = "usd",
-    cup = "cup", 
-    mlc = "mlc", 
+    USD = "USD",
+    CUP = "CUP", 
+    MLC = "MLC", 
 }

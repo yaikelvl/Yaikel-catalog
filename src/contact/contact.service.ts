@@ -36,13 +36,13 @@ export class ContactService {
 
   async create(createContactDto: CreateContactDto) {
     try {
-      const user = await this.businessRepository.findOneBy({
+      const business = await this.businessRepository.findOneBy({
         business_id: createContactDto.business_id,
       });
 
-      if (!user) {
+      if (!business) {
         throw new BadRequestException(
-          `User with id ${createContactDto.business_id} not found`,
+          `Business with id ${createContactDto.business_id} not found`,
         );
       }
 
@@ -86,7 +86,7 @@ export class ContactService {
         contact_id,
         business_id,
         phone,
-        url,
+        url: url.map((term) => term.url),
       }),
     );
 

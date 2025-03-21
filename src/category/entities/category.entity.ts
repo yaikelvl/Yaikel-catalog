@@ -2,16 +2,17 @@ import { currencyEnum } from 'src/common/enum';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Subcategory } from '.';
 import { Business } from 'src/business/entities';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity('category')
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   category_id: string;
 
-  @Column('varchar', { nullable: false })
+  @Column('varchar', { nullable: false, unique: true })
   category: string;
 
-  @OneToMany(() => Subcategory, (sub) => sub.category, {
+  @OneToMany(() => Subcategory, (subcategory) => subcategory.category, {
     cascade: true,
     eager: true,
     nullable: true
@@ -24,15 +25,21 @@ export class Category {
   })
   business: Business[];
 
-  @Column('float', { nullable: true })
-  minPrice?: number;
+  @OneToMany(() => Product, (product) => product.category, {
+    cascade: true,
+    eager: true,
+  })
+  product: Product[];
 
-  @Column('float', { nullable: true })
-  maxPrice?: number;
+  // @Column('float', { nullable: true })
+  // minPrice?: number;
 
-  @Column('varchar', { nullable: true })
-  currency?: currencyEnum;
+  // @Column('float', { nullable: true })
+  // maxPrice?: number;
 
-  @Column('timestamp', { nullable: true })
-  date?: Date;
+  // @Column('varchar', { nullable: true })
+  // currency?: currencyEnum;
+
+  // @Column('timestamp', { nullable: true })
+  // date?: Date;
 }

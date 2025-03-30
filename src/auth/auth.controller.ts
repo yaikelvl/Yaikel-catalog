@@ -1,14 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body
-} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto';
-import { Auth } from './decorators';
+import { Auth, GetUser } from './decorators';
 import { ValidRoles } from './enum/valid-roles';
+import { User } from './entities/auth.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -20,16 +16,13 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+  login(@Body() loginUserDto: LoginUserDto, @GetUser() user: User) {
+    return this.authService.login(loginUserDto, user);
   }
 
-  // @Get('private')
-  // @Auth(ValidRoles.SUPERUSER)
-  // testingPrivateRoute() {
-  //   return {
-  //     ok: true,
-  //     message: 'This is a private route',
-  //   };
-  // }
+  @Get('verify')
+  @Auth()
+  verifyToken(@GetUser() user: User) {
+    return { user };
+  }
 }

@@ -113,6 +113,7 @@ export class ContactService {
     return contact;
   }
 
+  //Udate mantiene los Url y agega los que se actualizan si se actualizan.
   async update(id: string, updateContactDto: UpdateContactDto) {
     await this.findOne(id);
     const { url, ...toUpdate } = updateContactDto;
@@ -128,18 +129,18 @@ export class ContactService {
 
     try {
       if (url) {
-        const existingImages = await this.urlContRepository.find({
+        const extingUrl = await this.urlContRepository.find({
           where: { contact: { contact_id: id } },
         });
 
         const newUrl = url.filter(
-          (image) => !existingImages.some((img) => img.url === image),
+          (url) => !extingUrl.some((term) => term.url === url),
         );
 
         contact.url = [
-          ...existingImages,
-          ...newUrl.map((image) =>
-            this.urlContRepository.create({ url: image }),
+          ...extingUrl,
+          ...newUrl.map((url) =>
+            this.urlContRepository.create({ url }),
           ),
         ];
       }

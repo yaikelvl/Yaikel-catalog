@@ -11,7 +11,6 @@ export const GetUser = createParamDecorator(
             throw new InternalServerErrorException('User not found (request)')
         }
        
-            //Asi se hace un ternario
         return (!data) 
         ? user 
         : user[data];

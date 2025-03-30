@@ -1,5 +1,5 @@
 import { currencyEnum } from 'src/common/enum';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Subcategory } from '.';
 import { Business } from 'src/business/entities';
 import { Product } from 'src/product/entities/product.entity';
@@ -15,7 +15,7 @@ export class Category {
   @OneToMany(() => Subcategory, (subcategory) => subcategory.category, {
     cascade: true,
     eager: true,
-    nullable: true
+    nullable: true,
   })
   subcategory?: Subcategory[];
 
@@ -31,15 +31,12 @@ export class Category {
   })
   product: Product[];
 
-  // @Column('float', { nullable: true })
-  // minPrice?: number;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-  // @Column('float', { nullable: true })
-  // maxPrice?: number;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
-  // @Column('varchar', { nullable: true })
-  // currency?: currencyEnum;
-
-  // @Column('timestamp', { nullable: true })
-  // date?: Date;
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

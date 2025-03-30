@@ -84,9 +84,6 @@ export class Business {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  // @Column('boolean', { nullable: true, default: true })
-  // isActive?: boolean;
-
   @DeleteDateColumn() 
   deletedAt?: Date;
 }

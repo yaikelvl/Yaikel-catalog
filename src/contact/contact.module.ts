@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { UrlContact, Contact } from './entities';
 import { BusinessModule } from '../business/business.module';
+import { WebSocketsModule } from '../websockets/websockets.module';
 
 @Module({
   controllers: [ContactController],
-  imports: [TypeOrmModule.forFeature([Contact, UrlContact]), AuthModule, BusinessModule],
+  imports: [TypeOrmModule.forFeature([Contact, UrlContact]), AuthModule, BusinessModule, WebSocketsModule],
   exports: [ContactService, TypeOrmModule],
   providers: [ContactService],
 })

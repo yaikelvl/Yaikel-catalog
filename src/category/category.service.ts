@@ -7,7 +7,7 @@ import {
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Category, Subcategory } from './entities';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common';
@@ -27,7 +27,7 @@ export class CategoryService {
     // @InjectRepository(Contact)
     // private readonly categoryRepository: Repository<Contact>,
 
-    // private readonly dataSource: DataSource,
+    private readonly dataSource: DataSource,
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     const cat = await this.categoryRepository.findOne({
@@ -40,11 +40,11 @@ export class CategoryService {
       );
     }
     try {
-      // const business = await this.businessRepository.findOneBy({
+      // const category = await this.businessRepository.findOneBy({
       //   business_id: createContactDto.business_id,
       // });
 
-      // if (!business) {
+      // if (!category) {
       //   throw new BadRequestException(
       //     `Business with id ${createContactDto.business_id} not found`,
       //   );
@@ -139,12 +139,50 @@ export class CategoryService {
     }
   }
 
-  update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    await this.findOne(id);
+    const { subcategory, ...toUpdate } = updateCategoryDto;
+
+    const category = await this.categoryRepository.preload({
+      category_id: id,
+      ...toUpdate,
+    });
+
+    //Query Runner
+
+    console.log(category);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (subcategory) {
+        await this.subcategoryRepository.delete({ category_id: id });
+        category.subcategory = subcategory.map((sub) =>
+          this.subcategoryRepository.create({ sub }),
+        );
+      } else {
+      }
+
+      await queryRunner.manager.save(category);
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      // await this.businessRepository.save(category);
+      return category;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      this.handelExeption(error);
+    }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} category`;
+  async remove(id: string) {
+    const category = await this.findOne(id);
+
+    return await this.categoryRepository.softRemove(category);
   }
 
   private handelExeption(error: any) {

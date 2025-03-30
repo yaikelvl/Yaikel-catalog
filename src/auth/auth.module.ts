@@ -8,7 +8,8 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { JwtStrategy } from './strategies/jwt.startegy';
 import { User } from './entities/auth.entity';
-import { envs } from '../config/envs';
+import { envs } from '../common/config/envs';
+import { WebSocketsModule } from '../websockets/websockets.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { envs } from '../config/envs';
         return { secret: envs.jwtSecret, signOptions: { expiresIn: '2h' } };
       },
     }),
+    WebSocketsModule,
   ],
 
   exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule],

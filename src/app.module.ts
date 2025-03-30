@@ -5,7 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
-import { envs } from './config/envs';
+import { envs } from './common/config/envs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
@@ -14,6 +14,8 @@ import { ContactModule } from './contact/contact.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CategoryModule } from './category/category.module';
+import { loggerOptions } from './common/utils/logger.config';
+import { WinstonModule } from 'nest-winston';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { CategoryModule } from './category/category.module';
     //   validate: (config) => envSchema.parse(config),
     //   isGlobal: true,
     // }),
+
+    WinstonModule.forRoot(loggerOptions),
 
     ConfigModule.forRoot(),
 

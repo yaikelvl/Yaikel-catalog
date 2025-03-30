@@ -14,10 +14,8 @@ import { ContactModule } from './contact/contact.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CategoryModule } from './category/category.module';
-import { loggerOptions } from './common/utils/logger.config';
 import { WinstonModule } from 'nest-winston';
-import { WebSocketGateway } from '@nestjs/websockets';
-import { WSGateway } from './websockets/websocket.gateway';
+import * as winston from 'winston';
 
 @Module({
   imports: [
@@ -37,9 +35,6 @@ import { WSGateway } from './websockets/websocket.gateway';
     //   validate: (config) => envSchema.parse(config),
     //   isGlobal: true,
     // }),
-
-    WinstonModule.forRoot(loggerOptions),
-
     ConfigModule.forRoot(),
 
     TypeOrmModule.forRoot({
@@ -63,7 +58,21 @@ import { WSGateway } from './websockets/websocket.gateway';
         }),
       }),
     }),
-    // CacheModule.register({isGlobal: true}),
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.File({
+          filename: 'logs/app.log', 
+          level: 'info', 
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.printf(({ timestamp, level, message }) => {
+              return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+            })
+          ),
+        }),
+        new winston.transports.Console(), 
+      ],
+    }),
 
     AuthModule,
 

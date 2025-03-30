@@ -5,7 +5,9 @@ import { LoginUserDto } from './dto';
 import { Auth, GetUser } from './decorators';
 import { ValidRoles } from './enum/valid-roles';
 import { User } from './entities/auth.entity';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -16,8 +18,12 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto, @GetUser() user: User) {
-    return this.authService.login(loginUserDto, user);
+  @ApiOperation({ summary: 'Login' })
+  @ApiBody({ type: LoginUserDto }) // Specifies request body type in Swagger.
+  @ApiResponse({ status: 200, description: 'Successful login!' })
+  @ApiResponse({ status: 401, description: 'Incorrect username or password.' })
+  login(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
   }
 
   @Get('verify')

@@ -5,6 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import * as winston from 'winston';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -13,27 +14,18 @@ import { User } from './entities/auth.entity';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { GetUser } from './decorators';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Logger } from 'winston';
-import { WSGateway } from '../websockets/websocket.gateway';
-import { LogNotifyHelper } from '../common/utils/log-notify.helper';
+import { AppGateway } from '../websockets/app-gateway.gateway';
 
 @Injectable()
 export class AuthService {
 
-  private readonly logHelper: LogNotifyHelper;
-
   constructor(
     @InjectRepository(User)
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly notificationGateway: WSGateway,
-  ) {
-    this.logHelper = new LogNotifyHelper(this.logger, this.notificationGateway, 'UsersService');
-  }
+
+    private readonly appGateway: AppGateway,
+  ) { }
 
   async register(createUserDto: CreateUserDto) {
     try {
@@ -55,7 +47,7 @@ export class AuthService {
     }
   }
 
-  async login(loginUserDto: LoginUserDto, userReq: User) {
+  async login(loginUserDto: LoginUserDto) {
     const { phone, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({
@@ -68,8 +60,7 @@ export class AuthService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Bad Credentials (password)');
 
-    this.logHelper.logOperation(`Usuario ${user.id} ha realizado la operación de login`);
-
+    this.appGateway.sendMessage(loginUserDto.phone, 'de login');
     return {
       ...user,
       token: this.getJwtToken({ id: user.id }),

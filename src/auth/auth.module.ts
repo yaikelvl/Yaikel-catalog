@@ -28,7 +28,6 @@ import { WebSocketsModule } from '../websockets/websockets.module';
     }),
     WebSocketsModule,
   ],
-
   exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule],
   providers: [AuthService, JwtStrategy],
 })

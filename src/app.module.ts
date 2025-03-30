@@ -16,6 +16,8 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { CategoryModule } from './category/category.module';
 import { loggerOptions } from './common/utils/logger.config';
 import { WinstonModule } from 'nest-winston';
+import { WebSocketGateway } from '@nestjs/websockets';
+import { WSGateway } from './websockets/websocket.gateway';
 
 @Module({
   imports: [

@@ -70,4 +70,8 @@ export class CreateBusinessDto {
   @IsString()
   @IsUUID()
   user_id: string;
+
+  @IsString()
+  @IsUUID()
+  category_id: string;
 }

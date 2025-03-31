@@ -121,6 +121,22 @@ export class CategoryService {
     // if (!Array.isArray(createSubcategoryDto.sub)) {
     //   throw new BadRequestException('urls must be an array');
     // }
+    const duplicateSubcategories = await this.subcategoryRepository
+      .createQueryBuilder('subcategory')
+      .select('subcategory.sub')
+      .where('subcategory.category_id = :categoryId', {
+      categoryId: category.category_id,
+      })
+      .andWhere('subcategory.sub IN (:...subcategories)', {
+      subcategories: createSubcategoryDto.sub,
+      })
+      .getMany();
+
+    if (duplicateSubcategories.length > 0) {
+      throw new BadRequestException(
+        `Subcategory with name ${duplicateSubcategories.map((subcategory) => subcategory.sub)} already exists in this category`,
+      );
+    }
 
     const newSub = createSubcategoryDto.sub.map((sub) =>
       this.subcategoryRepository.create({ sub }),

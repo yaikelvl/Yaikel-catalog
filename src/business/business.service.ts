@@ -14,11 +14,13 @@ import { isUUID } from 'class-validator';
 import { User } from 'src/auth/entities/auth.entity';
 import { BusinessImages, Business } from './entities';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { AppGateway } from 'src/websockets/app-gateway.gateway';
+import { GetUser } from 'src/auth/decorators';
 
 @Injectable()
 export class BusinessService {
   private readonly logger = new Logger('BusinessService');
-
+  
   constructor(
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
@@ -31,17 +33,11 @@ export class BusinessService {
 
     private readonly dataSource: DataSource,
 
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly appGateway: AppGateway,
   ) {}
 
-  async create(createBusinessDto: CreateBusinessDto) {
+  async create(createBusinessDto: CreateBusinessDto, userReq: User) {
     try {
-      // const businessCacheKey = 'business-create';
-      // const cachedBusiness = await this.cacheManager.get(businessCacheKey);
-      
-      const businessCacheKey = 'business-fin-all';
-      await this.cacheManager.del(businessCacheKey);
-
 
       const user = await this.userRepository.findOneBy({
         id: createBusinessDto.user_id,
@@ -60,8 +56,8 @@ export class BusinessService {
         coverImage: coverImage.map((url) =>
           this.businessImageRepository.create({ url }),
         ),
-        //No tengo q crear el Negocio porque TypeORM lo infiere por mi.
       });
+      this.appGateway.sendMessage(userReq.phone, 'create Business');
       await this.businessRepository.save(business);
       return { ...business, coverImage };
     } catch (error) {
@@ -69,15 +65,8 @@ export class BusinessService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    //Manejar Cache de forma manual.
-    const businessCacheKey = 'business-fin-all';
-    const cachedBusiness = await this.cacheManager.get(businessCacheKey);
-
-    if (cachedBusiness) {
-      return cachedBusiness;
-    }
-
+  async findAll(paginationDto: PaginationDto, userReq: User) {
+   
     const { page, limit } = paginationDto;
 
     const totalPages = await this.businessRepository.count();
@@ -89,6 +78,8 @@ export class BusinessService {
         take: limit,
         relations: {
           coverImage: true,
+          category: true,
+          contact: true,
         },
       }),
       meta: {
@@ -101,36 +92,42 @@ export class BusinessService {
     const { data, meta } = business;
     const businessDetails = data.map(
       ({
-        business_id,
-        businessModel,
-        businessType,
-        coverImage,
-        name,
-        slogan,
-        description,
-        address,
-        dateEvent,
-        dateStartEvent,
-        dateEndEvent,
+      business_id,
+      businessModel,
+      businessType,
+      coverImage,
+      name,
+      category,
+      contact,
+      slogan,
+      description,
+      address,
+      dateEvent,
+      dateStartEvent,
+      dateEndEvent,
       }) => ({
-        business_id,
-        businessModel,
-        businessType,
-        coverImage: coverImage.map((img) => img.url),
-        name,
-        slogan,
-        description,
-        address,
-        dateEvent,
-        dateStartEvent,
-        dateEndEvent,
+      business_id,
+      businessModel,
+      businessType,
+      coverImage: coverImage.map((img) => img.url),
+      name,
+      category: {
+        category: category?.category || [],
+        subcategories: category?.subcategory?.map((term) => term.sub) || [],
+      },
+      contact: {
+        phones: contact?.phone || [], 
+        url: contact?.url?.map((term) => term.url) || [], 
+      },
+      slogan,
+      description,
+      address,
+      dateEvent,
+      dateStartEvent,
+      dateEndEvent,
       }),
     );
-    await this.cacheManager.set(
-      businessCacheKey,
-      { businessDetails, meta },
-      10000 * 10,
-    );
+    this.appGateway.sendMessage(userReq.phone, 'see all Business');
     return { businessDetails, meta };
   }
 
@@ -198,7 +195,7 @@ export class BusinessService {
       this.handelExeption(error);
     }
   }
-  async updateNew(id: string, updateBusinessDto: UpdateBusinessDto) {
+  async updateNew(id: string, updateBusinessDto: UpdateBusinessDto, userReq: User) {
     await this.findOne(id);
     const { coverImage, ...toUpdate } = updateBusinessDto;
 
@@ -234,19 +231,22 @@ export class BusinessService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
-      return this.findOnePlane(id);
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-
-      this.handelExeption(error);
+    this.appGateway.sendMessage(userReq.phone, `update Business ${id}`);
+    
+    return this.findOnePlane(id);
+    
+  } catch (error) {
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+    
+    this.handelExeption(error);
     }
   }
-
-  async remove(id: string) {
+  
+  async remove(id: string, userReq: User) {
     const business = await this.findOne(id);
-    // business.isActive = false;
-    // await this.businessRepository.save(business);
+
+    this.appGateway.sendMessage(userReq.phone, `remove Business ${id}`);
     return await this.businessRepository.softRemove(business);
   }
 

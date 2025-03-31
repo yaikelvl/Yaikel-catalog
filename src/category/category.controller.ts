@@ -1,21 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+  Inject,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto, CreateSubcategoryDto, UpdateCategoryDto } from './dto';
+import {
+  CreateCategoryDto,
+  CreateSubcategoryDto,
+  UpdateCategoryDto,
+} from './dto';
 import { PaginationDto } from 'src/common';
+import { CACHE_MANAGER, CacheKey, Cache } from '@nestjs/cache-manager';
 
 @Controller('category')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    const newCategory = this.categoryService.create(createCategoryDto);
+    await this.cacheManager.del('list-categories');
+    return newCategory;
   }
 
   @Get()
+  @CacheKey('list-categories')
   findAll(@Query() paginationDto: PaginationDto) {
-      return this.categoryService.findAll(paginationDto);
-    }
+    return this.categoryService.findAll(paginationDto);
+  }
 
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -23,17 +45,29 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoryService.update(id, updateCategoryDto);
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    const updateCategory = this.categoryService.update(id, updateCategoryDto);
+    await this.cacheManager.del('list-categories');
+    return updateCategory;
   }
 
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.categoryService.remove(id);
+    const removeCategory = this.categoryService.remove(id);
+    this.cacheManager.del('list-categories');
+    return removeCategory;
   }
 
-   @Post('/sub/:id')
-    addSubcategory(@Param('id', ParseUUIDPipe) id: string, @Body() createSubcategoryDto: CreateSubcategoryDto) {
-      return this.categoryService.addSubcategory(id, createSubcategoryDto);
-    }
+  @Post('/sub/:id')
+  addSubcategory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() createSubcategoryDto: CreateSubcategoryDto,
+  ) {
+    const newSub = this.categoryService.addSubcategory(id, createSubcategoryDto);
+    this.cacheManager.del('list-categories');
+    return newSub;
+  }
 }

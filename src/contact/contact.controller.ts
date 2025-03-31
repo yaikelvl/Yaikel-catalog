@@ -9,45 +9,63 @@ import {
   UseInterceptors,
   Query,
   ParseUUIDPipe,
+  Inject,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateContactDto, UpdateContactDto, CreateUrlDto } from './dto/';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { PaginationDto } from 'src/common';
+import { CACHE_MANAGER, CacheKey, Cache } from '@nestjs/cache-manager';
 
 @Controller('contact')
 @UseInterceptors(CacheInterceptor)
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post()
-  create(@Body() createContactDto: CreateContactDto) {
-    return this.contactService.create(createContactDto);
+  async create(@Body() createContactDto: CreateContactDto) {
+    const newContact = this.contactService.create(createContactDto);
+    await this.cacheManager.del('list-contacts');
+    return newContact;
   }
 
-  
   @Get()
+  @CacheKey('list-contacts')
   findAll(@Query() paginationDto: PaginationDto) {
     return this.contactService.findAll(paginationDto);
   }
-  
+
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this.contactService.findOne(term);
   }
-  
+
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactService.update(id, updateContactDto);
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateContactDto: UpdateContactDto,
+  ) {
+    const updateContact = this.contactService.update(id, updateContactDto);
+    await this.cacheManager.del('list-contacts');
+    return updateContact;
   }
-  
+
   @Post('/url/:id')
-  addUrlContact(@Param('id', ParseUUIDPipe) id: string, @Body() createUrlDto: CreateUrlDto) {
+  addUrlContact(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() createUrlDto: CreateUrlDto,
+  ) {
     return this.contactService.addUrl(id, createUrlDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.contactService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    const removeContact = this.contactService.remove(id);
+    await this.cacheManager.del('list-contacts');
+    return removeContact;
   }
+  
 }

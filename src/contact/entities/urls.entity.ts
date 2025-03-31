@@ -13,7 +13,7 @@ export class UrlContact {
   @PrimaryGeneratedColumn()
   url_id: number;
 
-  @Column('text')
+  @Column('text', { unique: true })
   url: string;
 
   @ManyToOne(() => Contact, (contact) => contact.url)

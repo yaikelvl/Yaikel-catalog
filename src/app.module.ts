@@ -56,6 +56,7 @@ import * as winston from 'winston';
             port: 6379,
           },
         }),
+        ttl: 60000, // 60 seconds
       }),
     }),
     WinstonModule.forRoot({

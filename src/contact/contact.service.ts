@@ -166,6 +166,7 @@ export class ContactService {
       throw new BadRequestException('urls must be an array');
     }
 
+
     const newUrls = urls.urls.map((url) => this.urlContRepository.create({ url }));
     contact.url = [...contact.url, ...newUrls];
 

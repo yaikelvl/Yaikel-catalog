@@ -12,19 +12,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly logger: Logger) {}
 
   handleConnection(client: Socket) {
-    this.logger.info(`Cliente conectado: ${client.id}`);
-    console.log(`Cliente conectado: ${client.id}`);
+    this.logger.info(`Client conected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.info(`Cliente desconectado: ${client.id}`);
-    console.log(`Cliente desconectado: ${client.id}`);
+    this.logger.info(`Client disconected: ${client.id}`);
   }
 
   sendMessage(user: string, operation: string) {
-    const message = `El usuario ${user} realizó la operación ${operation}`;
+    const message = `The user ${user} performed the operation ${operation}`;
     this.logger.info(message); 
     this.server.emit('notification', message);
-    console.log(message);
   }
 }

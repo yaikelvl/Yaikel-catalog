@@ -1,25 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+  Inject,
+} from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { PaginationDto } from 'src/common';
-import { CACHE_MANAGER, CacheInterceptor, CacheKey, CacheTTL, Cache } from '@nestjs/cache-manager';
+import {
+  CACHE_MANAGER,
+  CacheKey,
+  Cache,
+} from '@nestjs/cache-manager';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/auth.entity';
 
 @Controller('business')
-// @UseInterceptors(CacheInterceptor)
+@Auth()
 export class BusinessController {
-  constructor(private readonly businessService: BusinessService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  constructor(
+    private readonly businessService: BusinessService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Post()
-  create(@Body() createBusinessDto: CreateBusinessDto) {
-    return this.businessService.create(createBusinessDto);
+  async create(@Body() createBusinessDto: CreateBusinessDto, @GetUser() user: User) {
+    const newBusiness = this.businessService.create(createBusinessDto, user);
+    await this.cacheManager.del('list-businesses');
+    return newBusiness;
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.businessService.findAll(paginationDto);
+  @CacheKey('list-businesses')
+  findAll(@Query() paginationDto: PaginationDto, @GetUser() user: User) {
+    return this.businessService.findAll(paginationDto, user);
   }
 
   @Get(':term')
@@ -27,12 +48,24 @@ export class BusinessController {
     return this.businessService.findOnePlane(term);
   }
   @Patch(':id')
-  update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateBusinessDto: UpdateBusinessDto) {
-    return this.businessService.updateNew(id, updateBusinessDto);
+  async update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateBusinessDto: UpdateBusinessDto,
+    @GetUser() user: User,
+  ) {
+    const updateBusiness = this.businessService.updateNew(
+      id,
+      updateBusinessDto,
+      user,
+    );
+    await this.cacheManager.del('list-businesses');
+    return updateBusiness;
   }
 
   @Delete(':id')
-  remove(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.businessService.remove(id);
+  remove(@Param('id', new ParseUUIDPipe()) id: string, @GetUser() user: User) {
+    const removeBusiness = this.businessService.remove(id, user);
+    this.cacheManager.del('list-businesses');
+    return removeBusiness;
   }
 }

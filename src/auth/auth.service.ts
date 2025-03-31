@@ -15,17 +15,17 @@ import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { AppGateway } from '../websockets/app-gateway.gateway';
+import { GetUser } from './decorators';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
 
     private readonly appGateway: AppGateway,
-  ) { }
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     try {
@@ -35,10 +35,14 @@ export class AuthService {
         ...userData,
         password: bcrypt.hashSync(password, 10),
       });
-      console.log(user);
+
       await this.userRepository.save(user);
       delete user.password;
+
+      this.appGateway.sendMessage(createUserDto.phone, 'register');
+
       return {
+        message: 'Successful register!',
         ...user,
         token: this.getJwtToken({ id: user.id }),
       };
@@ -60,8 +64,9 @@ export class AuthService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Bad Credentials (password)');
 
-    this.appGateway.sendMessage(loginUserDto.phone, 'de login');
+    this.appGateway.sendMessage(loginUserDto.phone, 'login');
     return {
+      message: 'Successful login!',
       ...user,
       token: this.getJwtToken({ id: user.id }),
     };

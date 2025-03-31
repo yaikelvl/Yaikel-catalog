@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+
+import { AppModule } from './app.module';
 import { envs } from './common/config/envs';
 
 async function bootstrap() {
@@ -25,6 +27,10 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   logger.log(`Server is running on port ${envs.port}`);
+  
+  app.useGlobalInterceptors(app.get(CacheInterceptor));
+  
   await app.listen(envs.port ?? 3000);
+
 }
 bootstrap();

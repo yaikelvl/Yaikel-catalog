@@ -1,22 +1,29 @@
 import {
   Controller,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-// import { AppService } from './app.service';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { AppService } from './app.service';
 
-@Controller('files')
+@Controller()
 export class AppController {
-  // constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly cloudinaryService: CloudinaryService,
+    private readonly appService: AppService,
+  ) {}
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    return {
-      message: 'File upload successfully',
-    };
-  }
+  // @Post('upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // uploadImage(@UploadedFile() file: Express.Multer.File) {
+  //   return this.appService.uploadImageToCloudinary(file);
+  // }
 }
+

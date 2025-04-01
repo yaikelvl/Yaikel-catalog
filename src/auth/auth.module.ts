@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
-import { JwtStrategy } from './strategies/jwt.startegy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from './entities/auth.entity';
 import { envs } from '../common/config/envs';
 import { AppGateway } from 'src/websockets/app-gateway.gateway';

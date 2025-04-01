@@ -16,6 +16,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { CategoryModule } from './category/category.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -84,6 +85,8 @@ import * as winston from 'winston';
     ContactModule,
 
     CategoryModule,
+
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

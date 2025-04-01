@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -15,6 +14,10 @@ import { isUUID } from 'class-validator';
 import { Business } from '../business/entities';
 import { CreateUrlDto, CreateContactDto, UpdateContactDto } from './dto';
 
+/**
+ * ContactService manages the logic for creating, updating, retrieving, and deleting contacts.
+ * It also handles the addition of URLs to contacts and ensures data integrity during operations.
+ */
 @Injectable()
 export class ContactService {
   private readonly logger = new Logger('ContactService');
@@ -30,10 +33,15 @@ export class ContactService {
     private readonly contactRepository: Repository<Contact>,
 
     private readonly dataSource: DataSource,
-
-    // @Inject(CACHE_MANAGER) private cacheManager: Cache)
   ) {}
 
+  /**
+   * Creates a new contact and associates URLs with it.
+   * 
+   * @param createContactDto - Data transfer object containing contact creation details.
+   * @returns The created contact with associated URLs.
+   * @throws BadRequestException if the business associated with the contact is not found.
+   */
   async create(createContactDto: CreateContactDto) {
     try {
       const business = await this.businessRepository.findOneBy({
@@ -59,6 +67,12 @@ export class ContactService {
     }
   }
 
+  /**
+   * Retrieves all contacts with pagination and includes associated URLs.
+   * 
+   * @param paginationDto - Data transfer object containing pagination parameters (page and limit).
+   * @returns The paginated list of contacts with associated URLs.
+   */
   async findAll(paginationDto: PaginationDto) {
     const { page, limit } = paginationDto;
 
@@ -93,6 +107,13 @@ export class ContactService {
     return { contactDetails, meta };
   }
 
+  /**
+   * Finds a contact by its identifier or phone number.
+   * 
+   * @param term - Contact identifier (ID or phone number) to search for.
+   * @returns The found contact.
+   * @throws BadRequestException if no contact is found.
+   */
   async findOne(term: string) {
     let contact: Contact;
 
@@ -113,7 +134,14 @@ export class ContactService {
     return contact;
   }
 
-  //Udate mantiene los Url y agega los que se actualizan si se actualizan.
+  /**
+   * Updates an existing contact by its ID. Maintains existing URLs and adds new ones.
+   * 
+   * @param id - The ID of the contact to update.
+   * @param updateContactDto - Data transfer object containing updated contact details.
+   * @returns The updated contact with URLs.
+   * @throws InternalServerErrorException if an unexpected error occurs during the update process.
+   */
   async update(id: string, updateContactDto: UpdateContactDto) {
     await this.findOne(id);
     const { url, ...toUpdate } = updateContactDto;
@@ -129,16 +157,16 @@ export class ContactService {
 
     try {
       if (url) {
-        const extingUrl = await this.urlContRepository.find({
+        const existingUrl = await this.urlContRepository.find({
           where: { contact: { contact_id: id } },
         });
 
         const newUrl = url.filter(
-          (url) => !extingUrl.some((term) => term.url === url),
+          (url) => !existingUrl.some((term) => term.url === url),
         );
 
         contact.url = [
-          ...extingUrl,
+          ...existingUrl,
           ...newUrl.map((url) =>
             this.urlContRepository.create({ url }),
           ),
@@ -159,13 +187,21 @@ export class ContactService {
     }
   }
 
+  /**
+   * Adds new URLs to an existing contact.
+   * 
+   * @param id - The ID of the contact to update.
+   * @param urls - Data transfer object containing an array of new URLs to be added.
+   * @returns The updated contact with newly added URLs.
+   * @throws BadRequestException if the URLs are not provided as an array.
+   * @throws InternalServerErrorException if an error occurs during the operation.
+   */
   async addUrl(id: string, urls: CreateUrlDto) {
     const contact = await this.findOne(id);
 
     if (!Array.isArray(urls.urls)) {
-      throw new BadRequestException('urls must be an array');
+      throw new BadRequestException('URLs must be an array');
     }
-
 
     const newUrls = urls.urls.map((url) => this.urlContRepository.create({ url }));
     contact.url = [...contact.url, ...newUrls];
@@ -173,23 +209,35 @@ export class ContactService {
     try {
       await this.contactRepository.save(contact);
       return contact;
-    }catch (error) {
+    } catch (error) {
       this.handelExeption(error);
     }
   }
 
-  
+  /**
+   * Removes a contact by its ID.
+   * 
+   * @param id - The ID of the contact to delete.
+   * @returns The removed contact.
+   */
   async remove(id: string) {
     const contact = await this.findOne(id);
     return await this.contactRepository.softRemove(contact);
   }
 
+  /**
+   * Handles exceptions and logs errors. If a unique constraint violation occurs, it throws a BadRequestException.
+   * 
+   * @param error - The error to handle.
+   * @throws BadRequestException if the error code is '23505' (unique constraint violation).
+   * @throws InternalServerErrorException if the error is unexpected.
+   */
   private handelExeption(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
     this.logger.error(error);
     throw new InternalServerErrorException(
-      'Unexpecte error, check server logs',
+      'Unexpected error, check server logs',
     );
   }
 }

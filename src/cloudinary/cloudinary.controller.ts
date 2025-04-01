@@ -1,4 +1,3 @@
-// src/cloudinary/cloudinary.controller.ts
 import { Controller, Post, Get, Body, UseInterceptors, UploadedFile, Query, Delete, Param } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service';

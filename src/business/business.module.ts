@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { BusinessImages, Business } from './entities/';
 import { AppGateway } from '../websockets/app-gateway.gateway';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   controllers: [BusinessController],
-  imports: [TypeOrmModule.forFeature([Business, BusinessImages]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Business, BusinessImages]), AuthModule, CloudinaryModule],
   exports: [BusinessService, TypeOrmModule],
   providers: [BusinessService, AppGateway],
 })

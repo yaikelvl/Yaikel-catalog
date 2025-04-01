@@ -20,10 +20,6 @@ export class AppController {
     private readonly appService: AppService,
   ) {}
 
-  // @Post('upload')
-  // @UseInterceptors(FileInterceptor('file'))
-  // uploadImage(@UploadedFile() file: Express.Multer.File) {
-  //   return this.appService.uploadImageToCloudinary(file);
-  // }
+ 
 }
 

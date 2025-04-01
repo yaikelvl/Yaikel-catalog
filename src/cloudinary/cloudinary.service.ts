@@ -1,7 +1,8 @@
 // src/cloudinary/cloudinary.service.ts
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { CLOUDINARY } from './cloudinary.provider';
-import { UploadApiResponse, UploadApiErrorResponse, v2 as cloudinary } from 'cloudinary';
+import { UploadApiResponse } from 'cloudinary';
+import * as fs from 'fs';
 
 @Injectable()
 export class CloudinaryService {
@@ -30,12 +31,20 @@ export class CloudinaryService {
   async uploadFile(
     file: Express.Multer.File,
     options?: { publicId?: string; folder?: string },
-  ): Promise<UploadApiResponse> {
+  ): Promise<{ url: string; publicId: string }> {
     try {
-      return await this.cloudinaryClient.uploader.upload(file.path, {
+      const result = await this.cloudinaryClient.uploader.upload(file.path, {
         public_id: options?.publicId,
         folder: options?.folder,
       });
+
+      const optimizedUrl = this.cloudinaryClient.url(result.public_id, {
+        fetch_format: 'auto',
+        quality: 'auto',
+        secure: true,
+      });
+
+      return { url: optimizedUrl, publicId: result.public_id };
     } catch (error) {
       throw new BadRequestException(`Error al subir archivo: ${error.message}`);
     }
@@ -103,4 +112,52 @@ export class CloudinaryService {
       throw new BadRequestException(`Error al eliminar imagen: ${error.message}`);
     }
   }
+
+ /**
+   * Método simple para subir una o varias imágenes y obtener sus URLs
+   * @param files - Archivo único o array de archivos
+   * @param folder - Carpeta en Cloudinary (opcional)
+   * @returns - URLs de las imágenes optimizadas
+   */
+ async uploadImages(
+  files: Express.Multer.File | Express.Multer.File[],
+  folder?: string
+): Promise<{ url: string, publicId: string }[]> {
+  try {
+    // Convertir a array si es un solo archivo
+    const fileArray = Array.isArray(files) ? files : [files];
+    const results = [];
+
+    for (const file of fileArray) {
+      // Subir la imagen a Cloudinary
+      const result = await this.cloudinaryClient.uploader.upload(file.path, {
+        folder: folder || 'uploads',
+        resource_type: 'auto'
+      });
+
+      // Crear URL optimizada
+      const optimizedUrl = this.cloudinaryClient.url(result.public_id, {
+        fetch_format: 'auto',
+        quality: 'auto',
+        secure: true
+      });
+
+      results.push({
+        url: optimizedUrl,
+        publicId: result.public_id
+      });
+
+      // Eliminar el archivo temporal del servidor si existe
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+    }
+
+    return results;
+  } catch (error) {
+    throw new BadRequestException(`Error al subir imágenes: ${error.message}`);
+  }
+}
+
+
 }

@@ -38,7 +38,8 @@ export class CreateBusinessDto {
   @IsArray()
   @IsNotEmpty()
   @IsUrl({}, { each: true })
-  coverImage: string[];
+  @IsOptional()
+  coverImage?: string[];
 
   @ApiProperty({
     description: 'Profile image URL',

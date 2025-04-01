@@ -13,6 +13,8 @@ import { isUUID } from 'class-validator';
 import { User } from '../auth/entities/auth.entity';
 import { BusinessImages, Business } from './entities';
 import { AppGateway } from '../websockets/app-gateway.gateway';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 /**
  * BusinessService handles business-related operations such as creating, updating, 
@@ -32,6 +34,8 @@ export class BusinessService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    
+    private readonly cloudinaryService: CloudinaryService,
 
     private readonly dataSource: DataSource,
 
@@ -46,11 +50,17 @@ export class BusinessService {
    * @returns The newly created business entity.
    * @throws BadRequestException if the user ID is not found.
    */
-  async create(createBusinessDto: CreateBusinessDto, userReq: User) {
+  async create(createBusinessDto: CreateBusinessDto, businessImages: Express.Multer.File[], userReq: User) {
     try {
       const user = await this.userRepository.findOneBy({
         id: createBusinessDto.user_id,
       });
+
+      
+      const uploadedImages = await this.cloudinaryService.uploadImages(
+        businessImages, 
+        'business'
+      );
 
       if (!user) {
         throw new BadRequestException(
@@ -62,14 +72,14 @@ export class BusinessService {
 
       const business = this.businessRepository.create({
         ...businessDetails,
-        coverImage: coverImage.map((url) =>
-          this.businessImageRepository.create({ url }),
+        coverImage: uploadedImages.map(({ url, publicId }) =>
+          this.businessImageRepository.create({ url, image_public_id: publicId }),
         ),
       });
       
       this.appGateway.sendMessage(userReq.phone, 'create Business');
       await this.businessRepository.save(business);
-      return { ...business, coverImage };
+      return { ...business, coverImage: uploadedImages.map(({ url }) => url) };
     } catch (error) {
       this.handelExeption(error);
     }

@@ -16,6 +16,9 @@ export class BusinessImages {
   @Column('text')
   url: string;
 
+  @Column('text')
+  image_public_id: string;
+
   @ManyToOne(() => Business, (business) => business.coverImage)
   @JoinColumn({ name: 'business_id' })
   business: Business;

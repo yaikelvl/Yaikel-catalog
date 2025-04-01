@@ -9,6 +9,7 @@ import {
   Query,
   ParseUUIDPipe,
   Inject,
+  UploadedFiles,
 } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
@@ -19,6 +20,10 @@ import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/auth.entity';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Business } from './entities/business.entity';
+import { UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 /**
  * BusinessController handles operations related to business management,
@@ -40,7 +45,7 @@ export class BusinessController {
    * @param user - The authenticated user creating the business.
    * @returns The newly created business.
    */
-  @Post()
+  
   @ApiOperation({ summary: 'Create a new business' })
   @ApiBody({ type: CreateBusinessDto }) // Specifies request body type in Swagger.
   @ApiResponse({
@@ -52,11 +57,27 @@ export class BusinessController {
     status: 400,
     description: 'Bad request, validation failed.',
   })
+  @Post()
+  @UseInterceptors(
+    FilesInterceptor('images', 10, { // Limit to 10 files
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   async create(
     @Body() createBusinessDto: CreateBusinessDto,
+    @UploadedFiles() images: Express.Multer.File[],
     @GetUser() user: User,
   ) {
-    const newBusiness = this.businessService.create(createBusinessDto, user);
+    const newBusiness = this.businessService.create(createBusinessDto, images, user);
     await this.cacheManager.del('list-businesses');
     return newBusiness;
   }

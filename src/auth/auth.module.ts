@@ -6,10 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
-import { JwtStrategy } from './strategies/jwt.startegy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { User } from './entities/auth.entity';
 import { envs } from '../common/config/envs';
-import { WebSocketsModule } from '../websockets/websockets.module';
+import { AppGateway } from 'src/websockets/app-gateway.gateway';
 
 
 @Module({
@@ -26,9 +26,8 @@ import { WebSocketsModule } from '../websockets/websockets.module';
         return { secret: envs.jwtSecret, signOptions: { expiresIn: '2h' } };
       },
     }),
-    WebSocketsModule,
   ],
   exports: [AuthService, TypeOrmModule, JwtStrategy, JwtModule, PassportModule],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, AppGateway],
 })
 export class AuthModule {}

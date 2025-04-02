@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import * as yup from 'yup';
+import * as joi from 'joi';
 
 interface EnvVars {
   PORT: number;
@@ -9,34 +9,43 @@ interface EnvVars {
   DB_HOST: string;
   DB_PORT: number;
   JWT_SECRET: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
-const envSchema = yup
+const envSchema = joi
   .object({
-    PORT: yup.number().required(),
-    DB_PASSWORD: yup.string().required(),
-    DB_USER: yup.string().required(),
-    DB_NAME: yup.string().required(),
-    DB_HOST: yup.string().required(),
-    DB_PORT: yup.number().required(),
-    JWT_SECRET: yup.string().required()
+    PORT: joi.number().required(),
+    DB_PASSWORD: joi.string().required(),
+    DB_USER: joi.string().required(),
+    DB_NAME: joi.string().required(),
+    DB_HOST: joi.string().required(),
+    DB_PORT: joi.number().required(),
+    JWT_SECRET: joi.string().required(),
+    CLOUDINARY_CLOUD_NAME: joi.string().required(),
+    CLOUDINARY_API_KEY: joi.string().required(),
+    CLOUDINARY_API_SECRET: joi.string().required(),
   })
   .unknown(true);
 
-  const env = envSchema.validateSync(process.env, { stripUnknown: true });
+const { error, value } = envSchema.validate(process.env);
 
-// if (error) {
-//   throw new Error(`Config validation error: ${error.message}`);
-// }
+if (error) {
+  throw new Error(`Config validation error: ${error.message}`);
+}
 
-//const envVars: EnvVars = value;
+const envVars: EnvVars = value;
 
 export const envs = {
-  port: env.PORT,
-  dbPassword: env.DB_PASSWORD,
-  dbUser: env.DB_USER,
-  dbName: env.DB_NAME,
-  dbHost: env.DB_HOST,
-  dbPort: env.DB_PORT,
-  jwtSecret: env.JWT_SECRET
+  port: envVars.PORT,
+  dbPassword: envVars.DB_PASSWORD,
+  dbUser: envVars.DB_USER,
+  dbName: envVars.DB_NAME,
+  dbHost: envVars.DB_HOST,
+  dbPort: envVars.DB_PORT,
+  jwtSecret: envVars.JWT_SECRET,
+  cloudinaryCloudName: envVars.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: envVars.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: envVars.CLOUDINARY_API_SECRET,
 };

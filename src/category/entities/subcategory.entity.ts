@@ -13,7 +13,7 @@ export class Subcategory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text',{nullable: true, unique: true})
+  @Column('text',{nullable: true})
   sub?: string;
 
   @ManyToOne(() => Category, (category) => category.subcategory)

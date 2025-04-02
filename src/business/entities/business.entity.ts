@@ -59,11 +59,11 @@ export class Business {
   dateEndEvent?: Date;
 
   @OneToOne(() => Contact, (contact) => contact.business, {
-    cascade: ['insert', 'update'],
+    cascade: ['insert', 'update'], eager: true,
   })
   contact: Contact;
 
-  @OneToMany(() => Product, (product) => product.business, { cascade: true })
+  @OneToMany(() => Product, (product) => product.business, { cascade: true, lazy: true })
   product: Product[];
 
 
@@ -77,6 +77,9 @@ export class Business {
 
   @Column('uuid')
   user_id: string;
+
+  @Column('uuid')
+  category_id: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

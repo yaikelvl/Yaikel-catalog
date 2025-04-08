@@ -24,6 +24,7 @@ import { UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ValidRoles } from 'src/auth/enum/valid-roles';
 
 /**
  * BusinessController handles operations related to business management,
@@ -31,7 +32,7 @@ import { extname } from 'path';
  */
 @ApiTags('business')
 @Controller('business')
-@Auth()
+@Auth(ValidRoles.ADMIN)
 export class BusinessController {
   constructor(
     private readonly businessService: BusinessService,

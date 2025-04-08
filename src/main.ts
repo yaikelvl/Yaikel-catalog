@@ -5,11 +5,14 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 
 import { AppModule } from './app.module';
 import { envs } from './common/config/envs';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Main');
-
+  
+  app.use(cookieParser());
+  
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -31,6 +34,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(app.get(CacheInterceptor));
   
   await app.listen(envs.port ?? 3000);
+
 
 }
 bootstrap();

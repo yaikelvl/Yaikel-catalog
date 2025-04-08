@@ -12,6 +12,8 @@ import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { AppGateway } from '../websockets/app-gateway.gateway';
+import { Response } from 'express';
+import { setTokens } from './strategies/set-tokens';
 
 /**
  * AuthService handles user authentication and authorization logic.
@@ -29,10 +31,11 @@ export class AuthService {
    * Registers a new user by encrypting their password and storing their data.
    *
    * @param createUserDto - Data transfer object containing user registration details.
-   * @returns A success message along with user details and a JWT token.
+   * @param response - Express response object for setting cookies.
+   * @returns A success message along with user details.
    * @throws BadRequestException if registration fails due to a database constraint.
    */
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto, response: Response) {
     try {
       const { password, ...userData } = createUserDto;
 
@@ -46,10 +49,12 @@ export class AuthService {
 
       this.appGateway.sendMessage(createUserDto.phone, 'register');
 
+      // Set tokens in cookies
+      setTokens(user, response, this.jwtService);
+
       return {
         message: 'Successful register!',
         ...user,
-        token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
       throw new BadRequestException(error.detail);
@@ -57,18 +62,19 @@ export class AuthService {
   }
 
   /**
-   * Logs in a user by validating credentials and issuing a JWT token.
+   * Logs in a user by validating credentials and issuing tokens in cookies.
    *
    * @param loginUserDto - Data transfer object containing user login details.
-   * @returns A success message along with user details and a JWT token.
+   * @param response - Express response object for setting cookies.
+   * @returns A success message along with user details.
    * @throws UnauthorizedException if phone or password is incorrect.
    */
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: LoginUserDto, response: Response) {
     const { phone, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({
       where: { phone },
-      select: { phone: true, password: true },
+      select: { id: true, phone: true, password: true, role: true },
     });
 
     if (!user) throw new UnauthorizedException('Bad Credentials (phone)');
@@ -77,10 +83,29 @@ export class AuthService {
       throw new UnauthorizedException('Bad Credentials (password)');
 
     this.appGateway.sendMessage(loginUserDto.phone, 'login');
+
+    // Set tokens in cookies
+    setTokens(user, response, this.jwtService);
+
     return {
       message: 'Successful login!',
       ...user,
-      token: this.getJwtToken({ id: user.id }),
+    };
+  }
+
+  /**
+   * Logs out a user by clearing authentication cookies.
+   *
+   * @param response - Express response object for clearing cookies.
+   * @returns A success message confirming logout.
+   */
+  async logout(response: Response) {
+    // Clear cookies
+    response.clearCookie('access_token');
+    response.clearCookie('refresh_token');
+
+    return {
+      message: 'Logout successful',
     };
   }
 
@@ -92,5 +117,42 @@ export class AuthService {
    */
   private getJwtToken(payload: JwtPayload) {
     return this.jwtService.sign(payload);
+  }
+
+  /**
+   * Refreshes the access token using the refresh token.
+   *
+   * @param refreshToken - The refresh token from cookies
+   * @param response - Express response object for setting new cookies
+   * @returns A success message
+   * @throws UnauthorizedException if the refresh token is invalid
+   */
+  async refreshToken(refreshToken: string, response: Response) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    try {
+      // Verify the refresh token
+      const payload = await this.jwtService.verifyAsync(refreshToken);
+
+      // Get the user from the database
+      const user = await this.userRepository.findOne({
+        where: { id: payload.id },
+      });
+
+      if (!user || !user.isActive) {
+        throw new UnauthorizedException('Invalid user');
+      }
+
+      // Set new tokens in cookies
+      setTokens(user, response, this.jwtService);
+
+      return {
+        message: 'Token refreshed successfully',
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
   }
 }

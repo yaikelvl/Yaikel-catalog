@@ -4,7 +4,7 @@
 
 # Product Catalog
 
-API developed in NestJS for managing a product catalog. The API allows businesses, events, products, or services management using TypeORM and PostgreSQL, with JWT authentication, real-time notifications via Socket.IO, and Swagger documentation.
+API developed in NestJS for managing a product catalog. The API allows businesses, events, products, or services management using TypeORM and PostgreSQL, with JWT authentication and cookies, real-time notifications via Socket.IO, and Swagger documentation.
 
 ## 👋 Prerequisites
 

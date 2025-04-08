@@ -1,8 +1,8 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { RoleProtected } from './role-protected.decorator';
-import { AuthGuard } from '@nestjs/passport';
-import { UserRoleGuard } from '../guards/user-role/user-role.guard';
+import { UserRoleGuard } from '../guards/user-role.guard';
 import { ValidRoles } from '../enum/valid-roles';
+import { AuthGuard } from '../guards/auth.guard';
 
 /**
  * Auth decorator is a combination of guards and role-based protection for routes.
@@ -18,6 +18,6 @@ export function Auth(...roles: ValidRoles[]) {
     RoleProtected(...roles),
     
     // Auth guard: Ensures the user is authenticated (valid JWT token is required)
-    UseGuards(AuthGuard(), UserRoleGuard),
+    UseGuards(AuthGuard, UserRoleGuard),
   );
 }

@@ -12,10 +12,10 @@ import {
 } from 'typeorm';
 import { businessModelEnum } from '../../common/enum';
 import { User } from '../../auth/entities/auth.entity';
-import { Product } from 'src/product/entities/product.entity';
-import { Contact } from 'src/contact/entities/contact.entity';
+import { Product } from '../../product/entities/product.entity';
+import { Contact } from '../../contact/entities/contact.entity';
 import { BusinessImages } from './';
-import { Category } from 'src/category/entities';
+import { Category } from '../../category/entities';
 
 @Entity('business')
 export class Business {

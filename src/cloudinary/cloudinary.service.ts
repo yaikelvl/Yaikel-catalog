@@ -1,4 +1,3 @@
-// src/cloudinary/cloudinary.service.ts
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { CLOUDINARY } from './cloudinary.provider';
 import { UploadApiResponse } from 'cloudinary';

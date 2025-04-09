@@ -12,7 +12,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { currencyEnum, productsModelEnum } from 'src/common/enum';
+import { currencyEnum, productsModelEnum } from '../../common/enum';
 
 export class CreateProductDto {
   @ApiProperty({

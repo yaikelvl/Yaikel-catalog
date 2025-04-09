@@ -1,8 +1,7 @@
-import { currencyEnum } from 'src/common/enum';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Subcategory } from '.';
-import { Business } from 'src/business/entities';
-import { Product } from 'src/product/entities/product.entity';
+import { Business } from '../../business/entities';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity('category')
 export class Category {

@@ -1,6 +1,4 @@
-import { Business } from 'src/business/entities/business.entity';
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -9,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ValidRoles } from '../enum/valid-roles';
+import { Business } from '../../business/entities/business.entity';
 
 @Entity('users')
 export class User {

@@ -1,7 +1,7 @@
 // src/cloudinary/cloudinary.provider.ts
 import { Provider } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
-import { envs } from 'src/common/config/envs';
+import { envs } from '../common/config/envs';
 
 export const CLOUDINARY = 'CLOUDINARY';
 

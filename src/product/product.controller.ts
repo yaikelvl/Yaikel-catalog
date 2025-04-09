@@ -14,7 +14,7 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '../common';
 import {
   CACHE_MANAGER,
   CacheInterceptor,

@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Category, Subcategory } from './entities';
 import { isUUID } from 'class-validator';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '../common';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 
 /**

@@ -8,13 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '../common';
 import { isUUID } from 'class-validator';
 import { User } from '../auth/entities/auth.entity';
 import { BusinessImages, Business } from './entities';
 import { AppGateway } from '../websockets/app-gateway.gateway';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 /**
  * BusinessService handles business-related operations such as creating, updating, 
@@ -81,7 +80,7 @@ export class BusinessService {
       await this.businessRepository.save(business);
       return { ...business, coverImage: uploadedImages.map(({ url }) => url) };
     } catch (error) {
-      this.handelExeption(error);
+      this.handleException(error);
     }
   }
 
@@ -168,7 +167,8 @@ export class BusinessService {
   async findOne(term: string, flag: boolean, userReq: User) {
     let business: Business;
 
-    if (isUUID(term)) {
+    // Check if term is a number (potential ID) or a UUID
+    if (isUUID(term) || !isNaN(Number(term))) {
       business = await this.businessRepository.findOneBy({ business_id: term });
     } else {
       business = await this.businessRepository.findOneBy({ name: term });
@@ -205,38 +205,42 @@ export class BusinessService {
    * @throws InternalServerErrorException if an error occurs during the update process.
    */
   async update(id: string, updateBusinessDto: UpdateBusinessDto) {
-    await this.findOne(id, false, null);
-    const { coverImage, ...toUpdate } = updateBusinessDto;
-
-    const business = await this.businessRepository.preload({
-      business_id: id,
-      ...toUpdate,
-    });
-
-    // Query Runner for transaction
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      if (coverImage) {
-        await queryRunner.manager.delete(BusinessImages, {
-          business: { business_id: id },
-        });
-        business.coverImage = coverImage.map((image) =>
-          this.businessImageRepository.create({ url: image }),
-        );
+      await this.findOne(id, false, null);
+      const { coverImage, ...toUpdate } = updateBusinessDto;
+
+      const business = await this.businessRepository.preload({
+        business_id: id,
+        ...toUpdate,
+      });
+
+      // Query Runner for transaction
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        if (coverImage) {
+          await queryRunner.manager.delete(BusinessImages, {
+            business: { business_id: id },
+          });
+          business.coverImage = coverImage.map((image) =>
+            this.businessImageRepository.create({ url: image }),
+          );
+        }
+
+        await queryRunner.manager.save(business);
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+
+        return business;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw error;
       }
-
-      await queryRunner.manager.save(business);
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      return business;
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handelExeption(error);
+      this.handleException(error);
     }
   }
 
@@ -249,47 +253,51 @@ export class BusinessService {
    * @returns The updated business entity with simplified cover images.
    */
   async updateNew(id: string, updateBusinessDto: UpdateBusinessDto, userReq: User) {
-    await this.findOne(id, false, null);
-    const { coverImage, ...toUpdate } = updateBusinessDto;
-
-    const business = await this.businessRepository.preload({
-      business_id: id,
-      ...toUpdate,
-    });
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      if (coverImage) {
-        const existingImages = await this.businessImageRepository.find({
-          where: { business: { business_id: id } },
-        });
+      await this.findOne(id, false, null);
+      const { coverImage, ...toUpdate } = updateBusinessDto;
 
-        const newImages = coverImage.filter(
-          (image) => !existingImages.some((img) => img.url === image),
-        );
+      const business = await this.businessRepository.preload({
+        business_id: id,
+        ...toUpdate,
+      });
 
-        business.coverImage = [
-          ...existingImages,
-          ...newImages.map((image) =>
-            this.businessImageRepository.create({ url: image }),
-          ),
-        ];
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        if (coverImage) {
+          const existingImages = await this.businessImageRepository.find({
+            where: { business: { business_id: id } },
+          });
+
+          const newImages = coverImage.filter(
+            (image) => !existingImages.some((img) => img.url === image),
+          );
+
+          business.coverImage = [
+            ...existingImages,
+            ...newImages.map((image) =>
+              this.businessImageRepository.create({ url: image }),
+            ),
+          ];
+        }
+
+        await queryRunner.manager.save(business);
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+
+        this.appGateway.sendMessage(userReq.phone, `update Business ${id}`);
+      
+        return this.findOnePlane(id, false, null);
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw error;
       }
-
-      await queryRunner.manager.save(business);
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      this.appGateway.sendMessage(userReq.phone, `update Business ${id}`);
-    
-      return this.findOnePlane(id, false, null);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handelExeption(error);
+      this.handleException(error);
     }
   }
   
@@ -302,7 +310,6 @@ export class BusinessService {
    */
   async remove(id: string, userReq: User) {
     const business = await this.findOne(id, false, null);
-
     this.appGateway.sendMessage(userReq.phone, `remove Business ${id}`);
     return await this.businessRepository.softRemove(business);
   }
@@ -314,7 +321,7 @@ export class BusinessService {
    * @throws BadRequestException if a database constraint error occurs.
    * @throws InternalServerErrorException if an unexpected error occurs.
    */
-  private handelExeption(error: any) {
+  private handleException(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
     this.logger.error(error);

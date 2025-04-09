@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
-import { join } from 'path';
-import { envs } from './common/config/envs';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
+
+import { join } from 'path';
+import { redisStore } from 'cache-manager-redis-yet';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+import { envs } from './common/config/envs';
 import { AuthModule } from './auth/auth.module';
 import { BusinessModule } from './business/business.module';
 import { ProductModule } from './product/product.module';
 import { ContactModule } from './contact/contact.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
 import { CategoryModule } from './category/category.module';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
@@ -88,7 +88,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
     CloudinaryModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

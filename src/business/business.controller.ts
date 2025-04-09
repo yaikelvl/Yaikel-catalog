@@ -14,7 +14,7 @@ import {
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '../common';
 import { CACHE_MANAGER, CacheKey, Cache } from '@nestjs/cache-manager';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/auth.entity';
@@ -24,7 +24,7 @@ import { UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ValidRoles } from 'src/auth/enum/valid-roles';
+import { ValidRoles } from '../auth/enum/valid-roles';
 
 /**
  * BusinessController handles operations related to business management,

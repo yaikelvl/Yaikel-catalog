@@ -16,7 +16,7 @@ import {
   CreateSubcategoryDto,
   UpdateCategoryDto,
 } from './dto';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '../common';
 import { CACHE_MANAGER, CacheKey, Cache } from '@nestjs/cache-manager';
 import { Auth } from '../auth/decorators';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';

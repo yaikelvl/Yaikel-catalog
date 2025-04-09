@@ -1,6 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-// import type { JwtPayload } from 'src/users/interfaces/jwt-payload.interface';
 import { User } from '../entities/auth.entity';
 
 /**

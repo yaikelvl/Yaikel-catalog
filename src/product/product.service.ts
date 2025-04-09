@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Business } from 'src/business/entities/business.entity';
-import { PaginationDto } from 'src/common';
+import { Business } from '../business/entities/business.entity';
+import { PaginationDto } from '../common';
 import { isUUID } from 'class-validator';
 
 /**

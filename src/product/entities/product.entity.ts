@@ -10,9 +10,9 @@ import {
 } from 'typeorm';
 
 
-import { currencyEnum, productsModelEnum } from 'src/common/enum';
-import { Business } from 'src/business/entities/business.entity';
-import { Category } from 'src/category/entities';
+import { currencyEnum, productsModelEnum } from '../../common/enum';
+import { Business } from '../../business/entities/';
+import { Category } from '../../category/entities';
 
 @Entity('product')
 export class Product {
@@ -36,8 +36,6 @@ export class Product {
 
   @Column('varchar', { unique: true })
   name: string;
-
-  //TODO: falta categoria
 
   @ManyToOne(() => Category, (category) => category.product)
     @JoinColumn({ name: 'category_id' })
